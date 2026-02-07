@@ -1,102 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Happy Rose Day</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            background: linear-gradient(to right, #ff758c, #ff7eb3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', sans-serif;
-            color: white;
-            text-align: center;
-        }
+<meta charset="UTF-8">
+<title>Happy Rose Day Anju 🌹</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .card {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 40px 60px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg,#ff9a9e,#fad0c4);
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .rose {
-            font-size: 4.5em;
-            margin-bottom: 10px;
-        }
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    width: 90%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 5px;
-        }
+h1 {
+    color: #ff4d6d;
+}
 
-        h2 {
-            font-size: 1.6em;
-            margin-bottom: 20px;
-        }
+button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    background: #ff4d6d;
+    color: white;
+}
 
-        button {
-            padding: 12px 25px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            margin: 10px;
-            transition: 0.3s;
-        }
+#game {
+    display: none;
+}
 
-        .yes {
-            background-color: #ff4d6d;
-            color: white;
-        }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
 
-        .yes:hover {
-            background-color: #ff1e4d;
-        }
+.tile {
+    background: #ff4d6d;
+    height: 70px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer;
+    color: transparent;
+}
 
-        .no {
-            background-color: white;
-            color: #ff4d6d;
-            position: relative;
-        }
-
-        #message {
-            margin-top: 20px;
-            font-size: 1.4em;
-        }
-    </style>
+.tile.open {
+    background: #fff;
+    color: #ff4d6d;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+</style>
 </head>
+
 <body>
-    <div class="card">
-        <div class="rose">🌹</div>
-        <h1>Happy Rose Day</h1>
-        <h2>Dear <span>Meri Pyaari Bubu Anju</span></h2>
 
-        <p>I Love You ❤️</p>
-        <p>Do you love me?</p>
+<div class="card" id="startCard">
+    <h1>Anju ❤️</h1>
+    <p>Match all the hearts to unlock my message 💌</p>
+    <button onclick="startGame()">Start Game</button>
+</div>
 
-        <button class="yes" onclick="yesClick()">Yes</button>
-        <button class="no" onmouseover="moveButton()">No</button>
+<div class="card" id="game">
+    <h1>Memory of Love 💕</h1>
+    <div class="grid" id="grid"></div>
+</div>
 
-        <div id="message"></div>
-    </div>
+<script>
+const emojis = ["💖","🌹","😍","❤️","💌","😘","💖","🌹","😍","❤️","💌","😘"];
+let first = null;
+let second = null;
+let lock = false;
+let matched = 0;
 
-    <script>
-        function yesClick() {
-            document.getElementById("message").innerHTML =
-                "Yay! I knew it 😍❤️ Happy Rose Day! I KNOW MAINE PAHLE BAHOT SAARI GALTIYA KI HAI AAPNE PAST ME BUT I PROMISE AABSE AAPKO SIKAYAT KA KOI MAUKA NHI DUNGA PLEASE MUJHE MAAF KR DIJIYE PLEASE BUBU" ;
+function startGame() {
+    document.getElementById("startCard").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    setupGrid();
+}
+
+function setupGrid() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    matched = 0;
+
+    emojis.sort(() => Math.random() - 0.5);
+
+    emojis.forEach(e => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.textContent = e;
+
+        tile.onclick = () => flip(tile);
+
+        grid.appendChild(tile);
+    });
+}
+
+function flip(tile) {
+    if (lock || tile.classList.contains("open")) return;
+
+    tile.classList.add("open");
+
+    if (!first) {
+        first = tile;
+        return;
+    }
+
+    second = tile;
+    lock = true;
+
+    if (first.textContent === second.textContent) {
+        matched += 2;
+        resetTurn();
+        if (matched === emojis.length) {
+            setTimeout(showMessage, 600);
         }
+    } else {
+        setTimeout(() => {
+            first.classList.remove("open");
+            second.classList.remove("open");
+            resetTurn();
+        }, 700);
+    }
+}
 
-        function moveButton() {
-            const btn = document.querySelector(".no");
-            const x = Math.random() * 200 - 100;
-            const y = Math.random() * 200 - 100;
-            btn.style.transform = `translate(${x}px, ${y}px)`;
-        }
-    </script>
+function resetTurn() {
+    first = null;
+    second = null;
+    lock = false;
+}
+
+function showMessage() {
+    document.body.innerHTML = `
+    <div style="
+        height:100vh;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        background:linear-gradient(135deg,#ff758c,#ff7eb3);
+        color:white;
+        text-align:center;
+        padding:20px;
+    ">
+        <div style="font-size:60px;">🌹</div>
+        <h1>Happy Rose Day Anju ❤️</h1>
+        <p style="font-size:18px; max-width:400px;">
+            Meri pyaari bubu,<br><br>
+            Har ek match ki tarah,<br>
+            hum bhi perfect match hain 💕<br><br>
+            I love you ❤️<BR>
+                Baby i know maine past me bahot saari galtiya ki hai but i promise aaga se aisi galtiya nhi hogi please mujhe maaf kar dijiye anju
+        </p>
+    </div>`;
+}
+</script>
+
 </body>
 </html>
